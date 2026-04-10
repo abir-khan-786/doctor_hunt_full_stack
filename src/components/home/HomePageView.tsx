@@ -5,6 +5,7 @@ import { HowItWorksSection } from "@/components/home/HowItWorksSection";
 import { DoctorsSection } from "@/components/home/DoctorsSection";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { CtaSection } from "@/components/home/CtaSection";
+import { ChatbotAi } from "@/components/home/chatbotAi";
 
 type ReviewWithDoctor = Review & { doctor: Doctor | null };
 
@@ -30,6 +31,7 @@ export function HomePageView({ doctors, reviews, dbOk }: Props) {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
+      <ChatbotAi />
       <DoctorsSection doctors={doctors} />
       <ReviewsSection reviews={reviews} />
       <CtaSection />
