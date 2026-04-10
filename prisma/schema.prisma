@@ -1,0 +1,123 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Doctor {
+  id           String        @id @default(cuid())
+  name         String
+  specialty    String
+  bio          String
+  imageUrl     String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+  reviews      Review[]
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  patientName String
+  email       String
+  phone       String
+  scheduledAt DateTime
+  reason      String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  doctorId    String
+  doctor      Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([doctorId])
+  @@index([scheduledAt])
+  @@index([userId])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  patientName String
+  rating      Int
+  comment     String
+  createdAt   DateTime @default(now())
+  doctorId    String?
+  doctor      Doctor?  @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([doctorId])
+  @@index([userId])
+}
+
+model User {
+  id            String        @id
+  name          String
+  email         String
+  emailVerified Boolean       @default(false)
+  image         String?
+  role          String        @default("user")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  appointments  Appointment[]
+  reviews       Review[]
+
+  @@unique([email])
+  @@index([role])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
